@@ -70,7 +70,7 @@ let texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texParam
  const an=gl.getExtension('EXT_texture_filter_anisotropic')||gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic');
  if(an)gl.texParameterf(gl.TEXTURE_2D,an.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(an.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
  draw()};im.src='data:image/webp;base64,'+B64;
-let bobY=0,cx=0,cz=0,a=8,yaw=0,zoom=.051,exaggerate=.6,thickness=.3,tintAmount=.48,focusAmount=.35,shadowStrength=.60;const U=n=>gl.getUniformLocation(prog,n);function smoothstepJS(edge0,edge1,v){let t=Math.max(0,Math.min(1,(v-edge0)/(edge1-edge0)));return t*t*(3-2*t)}function draw(){let dpr=Math.min(devicePixelRatio||1,2),w=Math.floor(innerWidth*dpr),h=Math.floor(innerHeight*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h);gl.clearColor(222.0/255.0,234.0/255.0,172.0/255.0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.uniform1f(U('pitch'),a*Math.PI/180);gl.uniform1f(U('yaw'),yaw);gl.uniform1f(U('zoom'),zoom);gl.uniform2f(U('center'),cx,cz);gl.uniform1f(U('bob'),bobY);gl.uniform1f(U('aspect'),w/h);gl.uniform1f(U('relief'),exaggerate);gl.uniform1f(U('thick'),thickness);gl.uniform1f(U('tintStrength'),tintAmount);gl.uniform1f(U('distanceBlur'),focusAmount*(1.0-smoothstepJS(14,78,a)));gl.drawElements(gl.TRIANGLES,indexes.length,gl.UNSIGNED_SHORT,0);updateShadow();updatePins()}
+let bobY=0,cx=0,cz=0,a=8,yaw=0,zoom=.051,exaggerate=.6,thickness=.3,tintAmount=.48,focusAmount=.35,shadowStrength=.60;const U=n=>gl.getUniformLocation(prog,n);function smoothstepJS(edge0,edge1,v){let t=Math.max(0,Math.min(1,(v-edge0)/(edge1-edge0)));return t*t*(3-2*t)}function draw(){let dpr=Math.min(devicePixelRatio||1,2),w=Math.floor(innerWidth*dpr),h=Math.floor(innerHeight*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.uniform1f(U('pitch'),a*Math.PI/180);gl.uniform1f(U('yaw'),yaw);gl.uniform1f(U('zoom'),zoom);gl.uniform2f(U('center'),cx,cz);gl.uniform1f(U('bob'),bobY);gl.uniform1f(U('aspect'),w/h);gl.uniform1f(U('relief'),exaggerate);gl.uniform1f(U('thick'),thickness);gl.uniform1f(U('tintStrength'),tintAmount);gl.uniform1f(U('distanceBlur'),focusAmount*(1.0-smoothstepJS(14,78,a)));gl.drawElements(gl.TRIANGLES,indexes.length,gl.UNSIGNED_SHORT,0);updateShadow();updatePins()}
 
 function updateShadow(){
   const el=document.querySelector('#terrainShadow');
@@ -158,13 +158,13 @@ function updatePins(){if(!pinLayer||!pinData||!pinEls)return;
   let dx=1,dy=0;if(rg){const vx=m[0]-rg[0],vy=m[1]-rg[1],L=Math.hypot(vx,vy);if(L>4){dx=vx/L;dy=vy/L}}
   // lean the fan upward so pins don't hang below their town
   const base=Math.atan2(-dy,dx)-0.25;const ang0=Math.max(-0.35,Math.min(Math.PI+0.35,base));
-  const n=list.length,step=0.38,R=(40+n*7)*k;
+  const n=list.length,step=0.42,R=(22+n*4)*k;
   list.forEach((p,i)=>{const t=ang0+(i-(n-1)/2)*step;p._tip=[m[0]+Math.cos(t)*R,m[1]-Math.sin(t)*R]})}
  for(const p of pinData){const el=pinEls[p.id];if(!el)continue;
   const tip=p.kind==='ring'?rg:p._tip;if(!tip)continue;
   const grown=p.kind!=='ring'&&(p.id===pinActive||p.id===pinHover||p.id===pinPop);
   el.classList.toggle('grow',grown);el.classList.toggle('hov',p.id===pinHover);
-  const dw=(p.w||100)*k,dh=dw/(p.ratio||1);const mw=24*k,mh=mw/(p.mratio||.71);
+  const dw=(p.w||100)*k,dh=dw/(p.ratio||1);const mw=14*k,mh=mw/(p.mratio||.71);
   const dr=el.querySelector('.dr');dr.style.width=dw+'px';dr.style.height=dh+'px';
   const mk=el.querySelector('.mk');mk.style.width=mw+'px';mk.style.height=mh+'px';
   // the ring's label sits just under it; a place's label sits under its pin tip
@@ -191,6 +191,8 @@ window.addEventListener('message',function(event){
  if(typeof data.yaw==='number') yaw=data.yaw;
  draw();
 });
+// Inside the site, let the page show through (no colour block behind the map).
+if(window.parent!==window){document.documentElement.style.background='transparent';document.body.style.background='transparent'}
 window.parent.postMessage({type:'VERMONT_READY'},'*');
 
 </script></body></html>
